@@ -1,3 +1,5 @@
+import { parseArguments } from './utils';
+
 interface ExerciseResult {
   periodLength: number;
   trainingDays: number;
@@ -8,7 +10,10 @@ interface ExerciseResult {
   average: number;
 }
 
-export function calculateExercises(dailyHours: number[], target: number): ExerciseResult {
+export const calculateExercises = (
+  dailyHours: number[],
+  target: number
+): ExerciseResult => {
   const periodLength = dailyHours.length;
   const trainingDays = dailyHours.filter(h => h > 0).length;
   const totalHours = dailyHours.reduce((sum, h) => sum + h, 0);
@@ -38,12 +43,24 @@ export function calculateExercises(dailyHours: number[], target: number): Exerci
     target,
     average
   };
-}
+};
 
-if (require.main === module) {
-  const dailyExercises = [3, 0, 2, 4.5, 0, 3, 1];
-  const target = 2;
+// CLI handling
+try {
+  const args = process.argv.slice(2);
 
-  const result = calculateExercises(dailyExercises, target);
-  console.log(result);
+  if (args.length < 2) {
+    throw new Error('Not enough arguments');
+  }
+
+  const numbers = parseArguments(args);
+  const target = numbers[0];
+  const dailyHours = numbers.slice(1);
+
+  console.log(calculateExercises(dailyHours, target));
+
+} catch (error: unknown) {
+  if (error instanceof Error) {
+    console.log('Error:', error.message);
+  }
 }
