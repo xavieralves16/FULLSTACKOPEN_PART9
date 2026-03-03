@@ -9,19 +9,21 @@ export const calculateBmi = (height: number, weight: number): string => {
   return 'Obese';
 };
 
-try {
-  const args = process.argv.slice(2);
+if (require.main === module) {
+  try {
+    const args = process.argv.slice(2);
 
-  if (args.length !== 2) {
-    throw new Error('Provide exactly 2 arguments');
-  }
+    if (args.length !== 2) {
+      throw new Error('Provide exactly 2 arguments');
+    }
 
-  const [height, weight] = parseArguments(args);
+    const [height, weight] = parseArguments(args);
 
-  console.log(calculateBmi(height, weight));
+    console.log(calculateBmi(height, weight));
 
-} catch (error: unknown) {
-  if (error instanceof Error) {
-    console.log('Error:', error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.log('Error:', error.message);
+    }
   }
 }
