@@ -1,0 +1,31 @@
+### GET all patients
+GET http://localhost:3001/api/patients
+Accept: application/json
+
+###
+
+### POST a new patient (correct data)
+POST http://localhost:3001/api/patients
+Content-Type: application/json
+
+{
+  "name": "Alice Smith",
+  "dateOfBirth": "1990-05-15",
+  "ssn": "123-45-6789",
+  "gender": "female",
+  "occupation": "Engineer"
+}
+
+###
+
+### POST a new patient (invalid data)
+POST http://localhost:3001/api/patients
+Content-Type: application/json
+
+{
+  "name": "Bob Jones",
+  "dateOfBirth": "not-a-date",
+  "ssn": "987-65-4321",
+  "gender": "unknown",
+  "occupation": "Pilot"
+}
