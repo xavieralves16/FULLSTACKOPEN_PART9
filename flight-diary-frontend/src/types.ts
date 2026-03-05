@@ -11,7 +11,7 @@ export type Visibility =
   | "ok"
   | "poor"
 
-  
+
 export interface DiaryEntry {
   id: number
   date: string
@@ -19,3 +19,5 @@ export interface DiaryEntry {
   visibility: Visibility
   comment?: string
 }
+
+export type NewDiaryEntry = Omit<DiaryEntry, "id">
