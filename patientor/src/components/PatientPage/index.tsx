@@ -1,7 +1,9 @@
-import { Diagnosis, Patient } from "../../types";
+import { Patient, Diagnosis } from "../../types";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import patientService from "../../services/patients";
+import EntryDetails from "../EntryDetails";
+import { Button, Typography } from "@mui/material";
 
 interface PatientPageProps {
   diagnoses: Diagnosis[];
@@ -25,28 +27,23 @@ const PatientPage = ({ diagnoses }: PatientPageProps) => {
 
   return (
     <div>
-      <h2>{patient.name}</h2>
-      <div>ssn: {patient.ssn}</div>
-      <div>occupation: {patient.occupation}</div>
-      <h3>Entries</h3>
+      <Typography variant="h4" sx={{ mb: 2 }}>{patient.name}</Typography>
+      <Typography>ssn: {patient.ssn}</Typography>
+      <Typography>occupation: {patient.occupation}</Typography>
+
+      <Typography variant="h5" sx={{ mt: 3, mb: 1 }}>Entries</Typography>
+
       {patient.entries.length === 0 ? (
-        <p>No entries yet</p>
+        <Typography>No entries yet</Typography>
       ) : (
-        patient.entries.map((entry) => (
-          <div key={entry.id} style={{ border: "1px solid black", padding: "10px", marginBottom: "10px" }}>
-            <p><strong>Date:</strong> {entry.date}</p>
-            <p><strong>Description:</strong> {entry.description}</p>
-            {entry.diagnosisCodes && entry.diagnosisCodes.length > 0 && (
-              <ul>
-                {entry.diagnosisCodes.map((code) => {
-                  const diagnosis = diagnoses.find(d => d.code === code);
-                  return <li key={code}>{code} {diagnosis ? `- ${diagnosis.name}` : ''}</li>;
-                })}
-              </ul>
-            )}
-          </div>
+        patient.entries.map(entry => (
+          <EntryDetails key={entry.id} entry={entry} diagnoses={diagnoses} />
         ))
       )}
+
+      <Button variant="contained" color="primary" sx={{ mt: 2 }}>
+        Add New Entry
+      </Button>
     </div>
   );
 };
