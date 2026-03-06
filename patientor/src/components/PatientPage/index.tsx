@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import patientService from "../../services/patients";
 import EntryDetails from "../EntryDetails";
-import { Button, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
+import AddEntryForm from "../AddEntryForm/AddEntryForm";
 
 interface PatientPageProps {
   diagnoses: Diagnosis[];
@@ -23,27 +24,54 @@ const PatientPage = ({ diagnoses }: PatientPageProps) => {
     void fetchPatient();
   }, [id]);
 
+  const submitEntry = async (values: any) => {
+    if (!id || !patient) return;
+
+    try {
+      const newEntry = await patientService.addEntry(id, values);
+
+      setPatient({
+        ...patient,
+        entries: patient.entries.concat(newEntry)
+      });
+
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   if (!patient) return <div>Loading...</div>;
 
   return (
     <div>
-      <Typography variant="h4" sx={{ mb: 2 }}>{patient.name}</Typography>
+      <Typography variant="h4" sx={{ mb: 2 }}>
+        {patient.name}
+      </Typography>
+
       <Typography>ssn: {patient.ssn}</Typography>
       <Typography>occupation: {patient.occupation}</Typography>
 
-      <Typography variant="h5" sx={{ mt: 3, mb: 1 }}>Entries</Typography>
+      <Typography variant="h5" sx={{ mt: 3 }}>
+        Add New Entry
+      </Typography>
+
+      <AddEntryForm onSubmit={submitEntry} />
+
+      <Typography variant="h5" sx={{ mt: 3 }}>
+        Entries
+      </Typography>
 
       {patient.entries.length === 0 ? (
         <Typography>No entries yet</Typography>
       ) : (
         patient.entries.map(entry => (
-          <EntryDetails key={entry.id} entry={entry} diagnoses={diagnoses} />
+          <EntryDetails
+            key={entry.id}
+            entry={entry}
+            diagnoses={diagnoses}
+          />
         ))
       )}
-
-      <Button variant="contained" color="primary" sx={{ mt: 2 }}>
-        Add New Entry
-      </Button>
     </div>
   );
 };
