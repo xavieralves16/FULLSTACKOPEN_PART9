@@ -55,7 +55,7 @@ const PatientPage = ({ diagnoses }: PatientPageProps) => {
         Add New Entry
       </Typography>
 
-      <AddEntryForm onSubmit={submitEntry} />
+      <AddEntryForm onSubmit={submitEntry} diagnoses={diagnoses} />
 
       <Typography variant="h5" sx={{ mt: 3 }}>
         Entries

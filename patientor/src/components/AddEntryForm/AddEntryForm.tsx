@@ -1,24 +1,18 @@
 import { useState } from "react";
-import {
-  TextField,
-  Button,
-  Stack,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl
-} from "@mui/material";
+import { TextField, Button, Stack, FormControl, InputLabel, Select, MenuItem, OutlinedInput, Chip, Box } from "@mui/material";
+import { Diagnosis, Entry } from "../../types";
 
 interface Props {
-  onSubmit: (values: any) => void;
+  onSubmit: (values: Omit<Entry, "id">) => void;
+  diagnoses: Diagnosis[];
 }
 
-const AddEntryForm = ({ onSubmit }: Props) => {
-  const [type, setType] = useState("HealthCheck");
-
+const AddEntryForm = ({ onSubmit, diagnoses }: Props) => {
+  const [type, setType] = useState<"HealthCheck" | "Hospital" | "OccupationalHealthcare">("HealthCheck");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
   const [specialist, setSpecialist] = useState("");
+  const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
 
   // HealthCheck
   const [healthCheckRating, setHealthCheckRating] = useState("0");
@@ -39,23 +33,19 @@ const AddEntryForm = ({ onSubmit }: Props) => {
       type,
       description,
       date,
-      specialist
+      specialist,
+      diagnosisCodes
     };
 
     if (type === "HealthCheck") {
       entry.healthCheckRating = Number(healthCheckRating);
-    }
-
-    if (type === "Hospital") {
+    } else if (type === "Hospital") {
       entry.discharge = {
         date: dischargeDate,
         criteria: dischargeCriteria
       };
-    }
-
-    if (type === "OccupationalHealthcare") {
+    } else if (type === "OccupationalHealthcare") {
       entry.employerName = employerName;
-
       if (sickStart && sickEnd) {
         entry.sickLeave = {
           startDate: sickStart,
@@ -66,10 +56,11 @@ const AddEntryForm = ({ onSubmit }: Props) => {
 
     onSubmit(entry);
 
-    // reset
+    // reset form
     setDescription("");
     setDate("");
     setSpecialist("");
+    setDiagnosisCodes([]);
     setHealthCheckRating("0");
     setDischargeDate("");
     setDischargeCriteria("");
@@ -80,20 +71,18 @@ const AddEntryForm = ({ onSubmit }: Props) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <Stack spacing={2} sx={{ maxWidth: 500 }}>
+      <Stack spacing={2} sx={{ mt: 2 }}>
 
         <FormControl>
           <InputLabel>Entry Type</InputLabel>
           <Select
             value={type}
+            onChange={(e) => setType(e.target.value as any)}
             label="Entry Type"
-            onChange={(e) => setType(e.target.value)}
           >
-            <MenuItem value="HealthCheck">HealthCheck</MenuItem>
+            <MenuItem value="HealthCheck">Health Check</MenuItem>
             <MenuItem value="Hospital">Hospital</MenuItem>
-            <MenuItem value="OccupationalHealthcare">
-              OccupationalHealthcare
-            </MenuItem>
+            <MenuItem value="OccupationalHealthcare">Occupational Healthcare</MenuItem>
           </Select>
         </FormControl>
 
@@ -105,9 +94,10 @@ const AddEntryForm = ({ onSubmit }: Props) => {
 
         <TextField
           label="Date"
-          placeholder="YYYY-MM-DD"
+          type="date"
           value={date}
           onChange={({ target }) => setDate(target.value)}
+          InputLabelProps={{ shrink: true }}
         />
 
         <TextField
@@ -116,23 +106,54 @@ const AddEntryForm = ({ onSubmit }: Props) => {
           onChange={({ target }) => setSpecialist(target.value)}
         />
 
+        <FormControl>
+          <InputLabel>Diagnosis Codes</InputLabel>
+          <Select
+            multiple
+            value={diagnosisCodes}
+            onChange={(e) => setDiagnosisCodes(e.target.value as string[])}
+            input={<OutlinedInput label="Diagnosis Codes" />}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selected.map((code) => (
+                  <Chip key={code} label={code} size="small" />
+                ))}
+              </Box>
+            )}
+          >
+            {diagnoses.map((d) => (
+              <MenuItem key={d.code} value={d.code}>
+                {d.code} - {d.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         {type === "HealthCheck" && (
-          <TextField
-            label="Health Rating (0-3)"
-            value={healthCheckRating}
-            onChange={({ target }) => setHealthCheckRating(target.value)}
-          />
+          <FormControl>
+            <InputLabel>Health Rating</InputLabel>
+            <Select
+              value={healthCheckRating}
+              onChange={(e) => setHealthCheckRating(e.target.value)}
+              label="Health Rating"
+            >
+              <MenuItem value="0">0 - Healthy</MenuItem>
+              <MenuItem value="1">1 - Low Risk</MenuItem>
+              <MenuItem value="2">2 - High Risk</MenuItem>
+              <MenuItem value="3">3 - Critical Risk</MenuItem>
+            </Select>
+          </FormControl>
         )}
 
         {type === "Hospital" && (
           <>
             <TextField
               label="Discharge Date"
-              placeholder="YYYY-MM-DD"
+              type="date"
               value={dischargeDate}
               onChange={({ target }) => setDischargeDate(target.value)}
+              InputLabelProps={{ shrink: true }}
             />
-
             <TextField
               label="Discharge Criteria"
               value={dischargeCriteria}
@@ -148,19 +169,19 @@ const AddEntryForm = ({ onSubmit }: Props) => {
               value={employerName}
               onChange={({ target }) => setEmployerName(target.value)}
             />
-
             <TextField
               label="Sick Leave Start"
-              placeholder="YYYY-MM-DD"
+              type="date"
               value={sickStart}
               onChange={({ target }) => setSickStart(target.value)}
+              InputLabelProps={{ shrink: true }}
             />
-
             <TextField
               label="Sick Leave End"
-              placeholder="YYYY-MM-DD"
+              type="date"
               value={sickEnd}
               onChange={({ target }) => setSickEnd(target.value)}
+              InputLabelProps={{ shrink: true }}
             />
           </>
         )}
